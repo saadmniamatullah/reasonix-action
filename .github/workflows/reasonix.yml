@@ -12,11 +12,13 @@ on:
         required: true
         type: string
       comment-id:
-        required: true
+        required: false
         type: number
+        default: 0
       comment-body:
-        required: true
+        required: false
         type: string
+        default: ""
       is-pr:
         required: false
         type: boolean
@@ -42,6 +44,7 @@ jobs:
           ref: ${{ inputs.is-pr && inputs.pr-branch || '' }}
 
       - name: Add eyes reaction
+        if: inputs.comment-id != 0
         run: gh api repos/${{ github.repository }}/issues/comments/${{ inputs.comment-id }}/reactions -f content='eyes'
         env:
           GH_TOKEN: ${{ github.token }}

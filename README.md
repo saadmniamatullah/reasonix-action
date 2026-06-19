@@ -2,7 +2,7 @@
 
 A reusable GitHub Action that uses [Reasonix](https://reasonix.io) to automatically fix issues and open PRs.
 
-Comment `@reasonix` on any issue or PR to trigger the agent.
+Comment `@reasonix` on any issue or PR to trigger the agent. You can also add the `reasonix` label to an issue to trigger it without commenting.
 
 - **On issues:** Reads the issue, implements the fix, opens a PR
 - **On PRs:** Reads the comment, pushes commits to the existing PR branch
@@ -22,17 +22,21 @@ name: Reasonix Agent
 on:
   issue_comment:
     types: [created]
+  issues:
+    types: [opened]
 
 jobs:
   reasonix:
-    if: startsWith(github.event.comment.body, '@reasonix')
+    if: >-
+      (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '@reasonix')) ||
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'reasonix'))
     uses: saadmniamatullah/reasonix-action/.github/workflows/reasonix.yml@main
     with:
       issue-number: ${{ github.event.issue.number }}
       issue-title: ${{ github.event.issue.title }}
       issue-body: ${{ github.event.issue.body }}
-      comment-id: ${{ github.event.comment.id }}
-      comment-body: ${{ github.event.comment.body }}
+      comment-id: ${{ github.event_name == 'issue_comment' && github.event.comment.id || 0 }}
+      comment-body: ${{ github.event_name == 'issue_comment' && github.event.comment.body || '' }}
       is-pr: ${{ github.event.issue.pull_request != null }}
       pr-branch: ${{ github.event.issue.pull_request != null && github.event.issue.pull_request.head.ref || '' }}
     secrets:
@@ -43,25 +47,21 @@ jobs:
       pull-requests: write
 ```
 
-### 3. Comment on an issue or PR
+### 3. Trigger reasonix
 
-**On an issue:**
+**Comment on an issue or PR:**
 
 ```
 @reasonix fix the login bug described in this issue
 ```
 
-**On a PR:**
-
-```
-@reasonix add error handling for the edge case mentioned in the review
-```
+**Or add the `reasonix` label to an issue** — no comment needed.
 
 ## What happens
 
 ### On issues
 
-1. 👀 Eyes reaction added to your comment
+1. 👀 Eyes reaction added to your comment (if triggered by comment)
 2. Reasonix clones the repo and reads the issue
 3. It implements the fix with focused commits
 4. A PR is opened against the default branch
