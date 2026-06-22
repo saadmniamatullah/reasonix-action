@@ -49,9 +49,28 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      - name: Resolve Node.js version
+        id: node-version
+        run: |
+          for f in .node-version .nvmrc; do
+            if [ -f "$f" ]; then
+              echo "version=$(tr -d '[:space:]' < "$f")" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          echo "version=24" >> "$GITHUB_OUTPUT"
+
       - uses: actions/setup-node@v6
         with:
-          node-version: "24"
+          node-version: ${{ steps.node-version.outputs.version }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Configure Git
+        run: |
+          git config user.name "reasonix[bot]"
+          git config user.email "reasonix[bot]@users.noreply.github.com"
 
       - name: Run reasonix
         run: npx reasonix@next run "$PROMPT" --budget 2.00 --no-session
