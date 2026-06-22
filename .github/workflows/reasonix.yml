@@ -64,9 +64,6 @@ jobs:
         with:
           node-version: ${{ steps.node-version.outputs.version }}
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Configure Git
         run: |
           git config user.name "reasonix[bot]"
