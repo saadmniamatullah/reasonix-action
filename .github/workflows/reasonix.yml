@@ -69,14 +69,10 @@ jobs:
           git config user.name "reasonix[bot]"
           git config user.email "reasonix[bot]@users.noreply.github.com"
 
-      - name: Configure reasonix credentials
-        run: |
-          mkdir -p ~/.reasonix
-          echo "DEEPSEEK_API_KEY=${{ secrets.DEEPSEEK_API_KEY }}" > ~/.reasonix/.env
-
       - name: Run reasonix
         run: npx reasonix@next run "$PROMPT" --budget 2.00 --no-session
         env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           PROMPT: |
             You are working on this repository. Read the issue/PR below and implement the requested changes.
             Make small, focused commits with clear messages.
