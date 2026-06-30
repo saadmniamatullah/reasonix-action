@@ -38,6 +38,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+      workflows: write
     steps:
       - uses: actions/checkout@v7
         with:
@@ -104,7 +105,7 @@ jobs:
           branch: reasonix/issue-${{ inputs.issue-number }}
           commit-message: "fix: resolve #${{ inputs.issue-number }}"
           title: "fix: resolve #${{ inputs.issue-number }}"
-          body-file: pr-body.md
+          body-path: pr-body.md
 
       - name: Push to PR branch
         if: ${{ inputs.is-pr }}
